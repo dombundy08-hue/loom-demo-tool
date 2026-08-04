@@ -93,8 +93,26 @@
   @media (prefers-reduced-motion: no-preference) { .dot { animation: pulse 2s ease-in-out infinite; } }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
-  h1 { font-size: 40px; font-weight: 500; margin: 0 0 0.6rem; text-wrap: balance; letter-spacing: -0.015em; }
-  .sub { font-size: 18px; color: var(--text-secondary); margin: 0 0 2.25rem; max-width: 74ch; line-height: 1.65; }
+  h1 { font-size: 40px; font-weight: 500; margin: 0 0 1.5rem; text-wrap: balance; letter-spacing: -0.015em; }
+  .sub { font-size: 17px; color: var(--text-secondary); margin: 0 0 1.5rem; max-width: 74ch; line-height: 1.65; }
+
+  .tabbar {
+    display: inline-flex; gap: 3px; background: var(--panel-2); border: 1px solid var(--border-strong);
+    border-radius: 11px; padding: 4px; margin-bottom: 1.75rem;
+  }
+  .tab-btn {
+    font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--text-secondary); background: transparent; border: none; border-radius: 8px;
+    padding: 9px 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .tab-btn.on { background: var(--panel); color: var(--text-primary); box-shadow: 0 0 0 1px var(--border-strong); }
+  .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tab-btn .rec { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); }
+  .tab-btn.on .rec { background: var(--data); }
+  .tab-btn.warn .rec { background: var(--trigger); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
 
   .canvas-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 0.9rem; }
   .canvas-label {
@@ -226,47 +244,57 @@
   </div>
 
   <h1 id="title" contenteditable="true">Automated lead outreach system</h1>
-  <p class="sub">Drag nodes to rearrange, click a badge to recolor it, click any text to rename it. Everything on this page is editable — reuse it for the next workflow by clearing it out and rebuilding.</p>
 
-  <div class="canvas-head">
-    <p class="canvas-label">Workflow canvas</p>
-    <button class="ghost" id="add-node-btn" type="button"><span aria-hidden="true">+</span> Add node</button>
+  <div class="tabbar" role="tablist">
+    <button class="tab-btn on" id="tab-btn-canvas" type="button" role="tab" aria-selected="true"><span class="rec" aria-hidden="true"></span>Canvas — share this</button>
+    <button class="tab-btn warn" id="tab-btn-script" type="button" role="tab" aria-selected="false"><span class="rec" aria-hidden="true"></span>Script — keep private</button>
   </div>
-  <div class="canvas" id="canvas">
-    <div class="canvas-inner" id="canvas-inner">
-      <svg id="wires"></svg>
+
+  <div class="panel active" id="panel-canvas">
+    <div class="canvas-head">
+      <p class="canvas-label">Workflow canvas</p>
+      <button class="ghost" id="add-node-btn" type="button"><span aria-hidden="true">+</span> Add node</button>
     </div>
-  </div>
-
-  <div class="readout" id="readout">Click a node to see it highlighted here and jump to its script line.</div>
-
-  <div class="script-head">
-    <p class="script-label">Loom script — read top to bottom</p>
-  </div>
-  <div class="script-card">
-    <div class="script" id="script">
-      <div class="line" data-role="open">
-        <span class="tag" contenteditable="true">OPEN</span>
-        <p contenteditable="true">"Hey, just saw your post — I'm Dominic. I've got something built that does exactly this kind of thing, let me show you."</p>
-      </div>
-      <div id="steps"></div>
-      <div class="line tie" data-role="tie">
-        <span class="tag" contenteditable="true">TIE-IN</span>
-        <p>"I saw you mentioned <input type="text" id="tie-in" placeholder="paste a line from their job post here" /> — this is the same kind of problem, just pointed at your workflow."</p>
-      </div>
-      <div class="line" data-role="close">
-        <span class="tag" contenteditable="true">CLOSE</span>
-        <p contenteditable="true">"Based on what you wrote, I'm confident I can do this. Message me here and we'll hop on a call."</p>
+    <div class="canvas" id="canvas">
+      <div class="canvas-inner" id="canvas-inner">
+        <svg id="wires"></svg>
       </div>
     </div>
   </div>
 
-  <div class="stats" role="status" aria-live="polite">
-    <div class="items">
-      <span class="item"><span class="swatch" style="background:var(--data)"></span><span id="node-count">0 nodes</span></span>
-      <span class="item"><span class="swatch" style="background:var(--accent)"></span><span id="wire-count">0 connections</span></span>
+  <div class="panel" id="panel-script">
+    <p class="sub">This tab is for you only — don't share this window during the recording. Drag nodes to rearrange, click a badge to recolor it, click any text to rename it. Everything here is editable, so reuse this same page for the next workflow by clearing it out and rebuilding.</p>
+
+    <div class="readout" id="readout">Click a node on the Canvas tab to see it highlighted here and jump to its script line.</div>
+
+    <div class="script-head">
+      <p class="script-label">Loom script — read top to bottom</p>
     </div>
-    <span class="hint">Drag to reposition · click badge to recolor</span>
+    <div class="script-card">
+      <div class="script" id="script">
+        <div class="line" data-role="open">
+          <span class="tag" contenteditable="true">OPEN</span>
+          <p contenteditable="true">"Hey, just saw your post — I'm Dominic. I've got something built that does exactly this kind of thing, let me show you."</p>
+        </div>
+        <div id="steps"></div>
+        <div class="line tie" data-role="tie">
+          <span class="tag" contenteditable="true">TIE-IN</span>
+          <p>"I saw you mentioned <input type="text" id="tie-in" placeholder="paste a line from their job post here" /> — this is the same kind of problem, just pointed at your workflow."</p>
+        </div>
+        <div class="line" data-role="close">
+          <span class="tag" contenteditable="true">CLOSE</span>
+          <p contenteditable="true">"Based on what you wrote, I'm confident I can do this. Message me here and we'll hop on a call."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats" role="status" aria-live="polite">
+      <div class="items">
+        <span class="item"><span class="swatch" style="background:var(--data)"></span><span id="node-count">0 nodes</span></span>
+        <span class="item"><span class="swatch" style="background:var(--accent)"></span><span id="wire-count">0 connections</span></span>
+      </div>
+      <span class="hint">Drag to reposition · click badge to recolor</span>
+    </div>
   </div>
 </div>
 
@@ -476,5 +504,24 @@
 
   seed.forEach(function (cfg) { addNode(cfg); });
   window.addEventListener("resize", growCanvas);
+
+  var tabCanvas = document.getElementById("tab-btn-canvas");
+  var tabScript = document.getElementById("tab-btn-script");
+  var panelCanvas = document.getElementById("panel-canvas");
+  var panelScript = document.getElementById("panel-script");
+
+  function showTab(name) {
+    var onCanvas = name === "canvas";
+    tabCanvas.classList.toggle("on", onCanvas);
+    tabCanvas.setAttribute("aria-selected", onCanvas);
+    tabScript.classList.toggle("on", !onCanvas);
+    tabScript.setAttribute("aria-selected", !onCanvas);
+    panelCanvas.classList.toggle("active", onCanvas);
+    panelScript.classList.toggle("active", !onCanvas);
+    if (onCanvas) growCanvas();
+  }
+
+  tabCanvas.addEventListener("click", function () { showTab("canvas"); });
+  tabScript.addEventListener("click", function () { showTab("script"); });
 })();
 </script>
