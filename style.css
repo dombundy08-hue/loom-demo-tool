@@ -182,12 +182,25 @@ a.mark { text-decoration: none; cursor: pointer; transition: background 0.15s ea
 a.mark:hover { background: var(--accent); color: var(--panel); transform: scale(1.06); }
 a.mark:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 0 0 2rem; }
+.hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 0 0 1rem; }
 .hub-card {
-  background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+  position: relative; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
   display: flex; flex-direction: column; gap: 14px;
 }
-.hub-card .hub-title { font-size: 17px; font-weight: 500; margin: 0; line-height: 1.4; }
+.hub-card .hub-title { font-size: 17px; font-weight: 500; margin: 0 28px 0 0; line-height: 1.4; }
+.hub-trash {
+  position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border-radius: 8px;
+  background: var(--panel-2); border: 1px solid var(--border-strong); color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.hub-trash:hover { color: #ff5c5c; border-color: #ff5c5c; background: rgba(255, 92, 92, 0.12); }
+.hub-trash:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hub-hidden-note { font-family: var(--font-mono); font-size: 12.5px; color: var(--text-muted); margin: 0 0 2rem; }
+.hub-hidden-note button {
+  background: none; border: none; color: var(--accent); font-family: var(--font-mono); font-size: 12.5px;
+  text-decoration: underline; cursor: pointer; padding: 0;
+}
 .hub-card .hub-links { display: flex; gap: 10px; margin-top: auto; }
 .hub-card .hub-links a {
   font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;

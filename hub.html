@@ -23,11 +23,20 @@
   <p class="sub">Every workflow demo built so far. Each one is a Canvas (the diagram to screen-share) and Notes (the private script) — open Canvas to record, Notes to prep.</p>
 
   <div class="hub-grid" id="hub-grid"></div>
+  <p class="hub-hidden-note" id="hidden-note" hidden></p>
 
   <div class="pagefoot"><span>Add a new one with Claude — say what to build it for</span></div>
 </div>
 
 <script>
+var HIDDEN_KEY = "loom_demo_hub_hidden_v1";
+var TRASH_ICON =
+  '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+  'stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline>' +
+  '<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>' +
+  '<path d="M10 11v6"></path><path d="M14 11v6"></path>' +
+  '<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>';
+
 var projects = [
   { title: "Automated lead outreach system", canvas: "index.html", notes: "notes.html" },
   { title: "Website build — from call to launch", canvas: "website/index.html", notes: "website/notes.html" },
@@ -35,22 +44,59 @@ var projects = [
   { title: "Website + GoHighLevel build — Jeneesa's Malamalama", canvas: "malamalama/index.html", notes: "malamalama/notes.html" }
 ];
 
+function loadHidden() {
+  try { return JSON.parse(localStorage.getItem(HIDDEN_KEY)) || []; } catch (e) { return []; }
+}
+function saveHidden(list) {
+  try { localStorage.setItem(HIDDEN_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
 var grid = document.getElementById("hub-grid");
-projects.forEach(function (p) {
-  var card = document.createElement("div");
-  card.className = "hub-card";
-  card.innerHTML =
-    '<p class="hub-title"></p>' +
-    '<div class="hub-links">' +
-    '<a target="_blank" rel="noopener">Canvas ↗</a>' +
-    '<a target="_blank" rel="noopener">Notes ↗</a>' +
-    "</div>";
-  card.querySelector(".hub-title").textContent = p.title;
-  var links = card.querySelectorAll(".hub-links a");
-  links[0].href = p.canvas;
-  links[1].href = p.notes;
-  grid.appendChild(card);
-});
+var hiddenNote = document.getElementById("hidden-note");
+
+function render() {
+  var hidden = loadHidden();
+  grid.innerHTML = "";
+  projects.forEach(function (p) {
+    if (hidden.indexOf(p.canvas) !== -1) return;
+    var card = document.createElement("div");
+    card.className = "hub-card";
+    card.innerHTML =
+      '<button type="button" class="hub-trash" title="Hide this project from the list">' + TRASH_ICON + "</button>" +
+      '<p class="hub-title"></p>' +
+      '<div class="hub-links">' +
+      '<a target="_blank" rel="noopener">Canvas ↗</a>' +
+      '<a target="_blank" rel="noopener">Notes ↗</a>' +
+      "</div>";
+    card.querySelector(".hub-title").textContent = p.title;
+    var links = card.querySelectorAll(".hub-links a");
+    links[0].href = p.canvas;
+    links[1].href = p.notes;
+    card.querySelector(".hub-trash").addEventListener("click", function () {
+      if (!confirm('Hide "' + p.title + '" from this list? You can restore it any time from the link below.')) return;
+      var current = loadHidden();
+      current.push(p.canvas);
+      saveHidden(current);
+      render();
+    });
+    grid.appendChild(card);
+  });
+
+  if (hidden.length) {
+    hiddenNote.hidden = false;
+    hiddenNote.innerHTML = "";
+    hiddenNote.appendChild(document.createTextNode(hidden.length + (hidden.length === 1 ? " project hidden — " : " projects hidden — ")));
+    var restore = document.createElement("button");
+    restore.type = "button";
+    restore.textContent = "restore";
+    restore.addEventListener("click", function () { saveHidden([]); render(); });
+    hiddenNote.appendChild(restore);
+  } else {
+    hiddenNote.hidden = true;
+  }
+}
+
+render();
 </script>
 </body>
 </html>
