@@ -14,3 +14,12 @@ The two pages sync automatically through the browser's local storage — edit a 
 2. On Notes, edit the script lines and the "tie-in" line for the specific job post.
 3. On Canvas, rename/add/remove/drag nodes to match whatever you're demoing (GHL automation, website, workflow, etc).
 4. Record in Loom with "Screen + Cam", sharing only the Canvas window.
+
+## Workflow builder (React/shadcn version)
+A second, separate workflow canvas — same drag-and-drop idea as the Canvas page above, built as a real React + TypeScript + Tailwind + shadcn/ui component (using `framer-motion` for the drag physics and `lucide-react` for icons), per a specific component spec.
+
+- **Source:** `react-demo/` — a standalone Vite + React + TypeScript project. `npm install` then `npm run dev` inside that folder to work on it.
+- **Component:** `react-demo/src/components/ui/n8n-workflow-block-shadcnui.tsx`
+- **Live:** https://dombundy08-hue.github.io/loom-demo-tool/workflow-builder/ — the built static output, committed to `workflow-builder/` at the repo root (`npm run build` inside `react-demo/`, then copy `react-demo/dist/*` into `workflow-builder/`). No CI — rebuild and re-copy manually after editing the component.
+
+This is separate from the Canvas/Notes pages above — those are unaffected and still the ones used for actual Loom recordings unless told otherwise.
