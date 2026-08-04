@@ -65,11 +65,13 @@
     el.dataset.id = n.id;
     el.style.transform = "translate(" + n.x + "px," + n.y + "px)";
     el.innerHTML =
+      '<div class="node-body">' +
       '<span class="del" title="Remove node" role="button" tabindex="0">&times;</span>' +
       '<div class="port l"></div>' +
       '<div class="badge" title="Click to recolor">' + n.badge + "</div>" +
       '<p class="title" contenteditable="true">' + n.title + "</p>" +
-      '<div class="port r"></div>';
+      '<div class="port r"></div>' +
+      "</div>";
     inner.appendChild(el);
     nodeEls[n.id] = el;
     bindNodeEvents(n, el);
@@ -118,6 +120,7 @@
       dragging = true; moved = false;
       startPX = e.clientX; startPY = e.clientY;
       startX = n.x; startY = n.y;
+      el.classList.add("dragging");
       el.setPointerCapture(e.pointerId);
     });
     el.addEventListener("pointermove", function (e) {
@@ -133,6 +136,7 @@
     el.addEventListener("pointerup", function (e) {
       if (!dragging) return;
       dragging = false;
+      el.classList.remove("dragging");
       el.releasePointerCapture(e.pointerId);
       if (moved) persist();
       else {
