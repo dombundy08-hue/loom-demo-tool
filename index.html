@@ -1,236 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Automation walkthrough — Dominic B.</title>
-<style>
-  :root {
-    --bg: #08080c;
-    --panel: #131319;
-    --panel-2: #1b1b24;
-    --border: #26262f;
-    --border-strong: #38394a;
-    --text-primary: #f2f1f7;
-    --text-secondary: #9c9bb0;
-    --text-muted: #64637a;
-    --accent: #a855ff;
-    --accent-glow: rgba(168, 85, 255, 0.35);
-    --accent-soft: rgba(168, 85, 255, 0.18);
-    --trigger: #f0a94e;
-    --trigger-soft: rgba(240, 169, 78, 0.14);
-    --data: #3ed9ae;
-    --data-soft: rgba(62, 217, 174, 0.14);
-    --action: #5b9ff0;
-    --action-soft: rgba(91, 159, 240, 0.14);
-    --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
-    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  }
-  :root[data-theme="light"] {
-    --bg: #f5f5f9;
-    --panel: #ffffff;
-    --panel-2: #f2f2f7;
-    --border: #e1e2eb;
-    --border-strong: #c9cbdb;
-    --text-primary: #15161e;
-    --text-secondary: #565870;
-    --text-muted: #8b8da0;
-    --accent: #7c1fe0;
-    --accent-glow: rgba(124, 31, 224, 0.22);
-    --accent-soft: rgba(124, 31, 224, 0.1);
-    --trigger: #b9720b;
-    --trigger-soft: rgba(185, 114, 11, 0.1);
-    --data: #0f9d78;
-    --data-soft: rgba(15, 157, 120, 0.1);
-    --action: #2f6fce;
-    --action-soft: rgba(47, 111, 206, 0.1);
-  }
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme="dark"]) {
-      --bg: #f5f5f9;
-      --panel: #ffffff;
-      --panel-2: #f2f2f7;
-      --border: #e1e2eb;
-      --border-strong: #c9cbdb;
-      --text-primary: #15161e;
-      --text-secondary: #565870;
-      --text-muted: #8b8da0;
-      --accent: #7c1fe0;
-      --accent-glow: rgba(124, 31, 224, 0.22);
-      --accent-soft: rgba(124, 31, 224, 0.1);
-      --trigger: #b9720b;
-      --trigger-soft: rgba(185, 114, 11, 0.1);
-      --data: #0f9d78;
-      --data-soft: rgba(15, 157, 120, 0.1);
-      --action: #2f6fce;
-      --action-soft: rgba(47, 111, 206, 0.1);
-    }
-  }
-  * { box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    margin: 0;
-    padding: 3rem 2.5rem 5rem;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 1360px; margin: 0 auto; }
-
-  .masthead { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
-  .brand { display: flex; align-items: center; gap: 14px; }
-  .mark {
-    width: 44px; height: 44px; border-radius: 10px; background: var(--accent-soft); color: var(--accent);
-    display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 19px; flex-shrink: 0;
-  }
-  .brand-name { font-size: 17px; font-weight: 500; margin: 0; letter-spacing: -0.01em; }
-  .brand-role {
-    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--text-muted); margin: 3px 0 0;
-  }
-  .live-pill {
-    display: flex; align-items: center; gap: 8px;
-    font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase;
-    color: var(--text-secondary); background: var(--panel-2); border: 1px solid var(--border-strong);
-    border-radius: 999px; padding: 8px 16px;
-  }
-  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--data); flex-shrink: 0; }
-  @media (prefers-reduced-motion: no-preference) { .dot { animation: pulse 2s ease-in-out infinite; } }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
-
-  h1 { font-size: 40px; font-weight: 500; margin: 0 0 1.5rem; text-wrap: balance; letter-spacing: -0.015em; }
-  .sub { font-size: 17px; color: var(--text-secondary); margin: 0 0 1.5rem; max-width: 74ch; line-height: 1.65; }
-
-  .tabbar {
-    display: inline-flex; gap: 3px; background: var(--panel-2); border: 1px solid var(--border-strong);
-    border-radius: 11px; padding: 4px; margin-bottom: 1.75rem;
-  }
-  .tab-btn {
-    font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase;
-    color: var(--text-secondary); background: transparent; border: none; border-radius: 8px;
-    padding: 9px 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
-  }
-  .tab-btn.on { background: var(--panel); color: var(--text-primary); box-shadow: 0 0 0 1px var(--border-strong); }
-  .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .tab-btn .rec { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); }
-  .tab-btn.on .rec { background: var(--data); }
-  .tab-btn.warn .rec { background: var(--trigger); }
-
-  .panel { display: none; }
-  .panel.active { display: block; }
-
-  .canvas-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 0.9rem; }
-  .canvas-label {
-    font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.07em; text-transform: uppercase;
-    color: var(--text-muted); margin: 0;
-  }
-  button.ghost {
-    font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase;
-    color: var(--text-secondary); background: var(--panel-2); border: 1px solid var(--border-strong);
-    border-radius: 8px; padding: 9px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-  }
-  button.ghost:hover { color: var(--text-primary); border-color: var(--accent); }
-  button.ghost:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-  .canvas {
-    position: relative;
-    background: radial-gradient(circle, var(--border-strong) 1px, transparent 1px) 0 0 / 24px 24px, var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    margin-bottom: 1.5rem;
-    overflow: auto;
-    height: 460px;
-  }
-  .canvas-inner { position: relative; }
-  .canvas svg { position: absolute; top: 0; left: 0; pointer-events: none; overflow: visible; }
-  .wire-path { fill: none; stroke: var(--border-strong); stroke-width: 2.5; stroke-dasharray: 7 6; }
-  @media (prefers-reduced-motion: no-preference) { .wire-path { animation: dash 1.1s linear infinite; } }
-  @keyframes dash { to { stroke-dashoffset: -26; } }
-
-  .node {
-    position: absolute; width: 176px; touch-action: none; user-select: none;
-    background: var(--panel-2); border: 1.5px solid var(--border-strong); border-radius: 12px;
-    padding: 16px 14px; text-align: center; cursor: grab;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  }
-  .node:active { cursor: grabbing; }
-  .node.active { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent), 0 0 26px var(--accent-glow); }
-  .node .del {
-    position: absolute; top: -9px; right: -9px; width: 22px; height: 22px; border-radius: 50%;
-    background: var(--panel); border: 1px solid var(--border-strong); color: var(--text-muted);
-    font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; opacity: 0; transition: opacity 0.15s ease;
-  }
-  .node:hover .del { opacity: 1; }
-  .node .badge {
-    width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 10px; font-family: var(--font-mono); font-size: 15px; font-weight: 600; cursor: pointer;
-  }
-  .node.c0 .badge { background: var(--trigger-soft); color: var(--trigger); }
-  .node.c1 .badge { background: var(--data-soft); color: var(--data); }
-  .node.c2 .badge { background: var(--action-soft); color: var(--action); }
-  .node.c3 .badge { background: var(--accent-soft); color: var(--accent); }
-  .node p.title {
-    font-size: 15px; font-weight: 500; margin: 0; line-height: 1.35; cursor: text;
-    border-radius: 4px; padding: 1px 2px;
-  }
-  .node p.title:focus { outline: 1px dashed var(--accent); }
-  .port { position: absolute; top: 50%; width: 9px; height: 9px; border-radius: 50%; background: var(--panel); border: 1.5px solid var(--border-strong); transform: translateY(-50%); }
-  .port.l { left: -5.5px; } .port.r { right: -5.5px; }
-
-  .readout {
-    font-family: var(--font-mono); font-size: 15px; color: var(--text-secondary);
-    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-    padding: 18px 20px; margin-bottom: 2rem; min-height: 22px;
-  }
-  .readout b { color: var(--text-primary); font-weight: 500; }
-
-  .script-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 0.9rem; }
-  .script-label {
-    display: flex; align-items: center; gap: 8px;
-    font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.07em;
-    color: var(--text-muted); text-transform: uppercase; margin: 0;
-  }
-  .script-card {
-    background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 10px;
-  }
-  .script { display: flex; flex-direction: column; gap: 2px; border-radius: 10px; overflow: hidden; }
-  .line {
-    display: grid; grid-template-columns: 130px 1fr; gap: 22px;
-    padding: 18px 18px; background: var(--panel);
-    border-left: 3px solid transparent; border-radius: 8px;
-    transition: background 0.15s ease, border-color 0.15s ease;
-  }
-  .line.step { position: relative; }
-  .line .step-del {
-    position: absolute; right: 12px; top: 14px; width: 20px; height: 20px; border-radius: 50%;
-    background: var(--panel-2); border: 1px solid var(--border-strong); color: var(--text-muted);
-    font-size: 12px; line-height: 1; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; opacity: 0; transition: opacity 0.15s ease;
-  }
-  .line.step:hover .step-del { opacity: 1; }
-  .line.tie { background: var(--accent-soft); }
-  .line.active { background: var(--panel-2); border-left-color: var(--accent); }
-  .line .tag {
-    font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); padding-top: 3px;
-    cursor: text; border-radius: 4px; letter-spacing: 0.03em;
-  }
-  .line .tag:focus { outline: 1px dashed var(--accent); }
-  .line.tie .tag { color: var(--accent); }
-  .line p { font-size: 18px; margin: 0; line-height: 1.6; cursor: text; border-radius: 4px; padding: 1px 2px; }
-  .line p:focus { outline: 1px dashed var(--accent); }
-  .line input {
-    width: 100%; background: transparent; border: none; border-bottom: 1px dashed var(--border-strong);
-    color: var(--text-primary); font-family: var(--font-body); font-size: 18px; padding: 2px 0;
-  }
-  .line input:focus { outline: none; border-bottom-color: var(--accent); }
-  .line input::placeholder { color: var(--text-muted); }
-
-  .stats {
-    margin-top: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-    background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px;
-  }
-  .stats .items { display: flex; gap: 22px; flex-wrap: wrap; }
-  .stats .item { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-secondary); }
-  .stats .item .swatch { width: 7px; height: 7px; border-radius: 50%; }
-  .stats .hint { font-size: 12.5px; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em; }
-</style>
-
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2213%22 font-size=%2214%22>&#9881;&#65039;</text></svg>" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
 <div class="wrap">
   <div class="masthead">
     <div class="brand">
@@ -240,177 +17,96 @@
         <p class="brand-role">AI automation &amp; lead-gen specialist</p>
       </div>
     </div>
-    <span class="live-pill"><span class="dot" aria-hidden="true"></span>Live walkthrough</span>
+    <span class="status-pill"><span class="dot" aria-hidden="true"></span>Live walkthrough</span>
   </div>
 
   <h1 id="title" contenteditable="true">Automated lead outreach system</h1>
 
-  <div class="tabbar" role="tablist">
-    <button class="tab-btn on" id="tab-btn-canvas" type="button" role="tab" aria-selected="true"><span class="rec" aria-hidden="true"></span>Canvas — share this</button>
-    <button class="tab-btn warn" id="tab-btn-script" type="button" role="tab" aria-selected="false"><span class="rec" aria-hidden="true"></span>Script — keep private</button>
+  <div class="section-head">
+    <p class="section-label">Workflow canvas</p>
+    <button class="ghost" id="add-node-btn" type="button"><span aria-hidden="true">+</span> Add node</button>
   </div>
-
-  <div class="panel active" id="panel-canvas">
-    <div class="canvas-head">
-      <p class="canvas-label">Workflow canvas</p>
-      <button class="ghost" id="add-node-btn" type="button"><span aria-hidden="true">+</span> Add node</button>
-    </div>
-    <div class="canvas" id="canvas">
-      <div class="canvas-inner" id="canvas-inner">
-        <svg id="wires"></svg>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel" id="panel-script">
-    <p class="sub">This tab is for you only — don't share this window during the recording. Drag nodes to rearrange, click a badge to recolor it, click any text to rename it. Everything here is editable, so reuse this same page for the next workflow by clearing it out and rebuilding.</p>
-
-    <div class="readout" id="readout">Click a node on the Canvas tab to see it highlighted here and jump to its script line.</div>
-
-    <div class="script-head">
-      <p class="script-label">Loom script — read top to bottom</p>
-    </div>
-    <div class="script-card">
-      <div class="script" id="script">
-        <div class="line" data-role="open">
-          <span class="tag" contenteditable="true">OPEN</span>
-          <p contenteditable="true">"Hey, just saw your post — I'm Dominic. I've got something built that does exactly this kind of thing, let me show you."</p>
-        </div>
-        <div id="steps"></div>
-        <div class="line tie" data-role="tie">
-          <span class="tag" contenteditable="true">TIE-IN</span>
-          <p>"I saw you mentioned <input type="text" id="tie-in" placeholder="paste a line from their job post here" /> — this is the same kind of problem, just pointed at your workflow."</p>
-        </div>
-        <div class="line" data-role="close">
-          <span class="tag" contenteditable="true">CLOSE</span>
-          <p contenteditable="true">"Based on what you wrote, I'm confident I can do this. Message me here and we'll hop on a call."</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="stats" role="status" aria-live="polite">
-      <div class="items">
-        <span class="item"><span class="swatch" style="background:var(--data)"></span><span id="node-count">0 nodes</span></span>
-        <span class="item"><span class="swatch" style="background:var(--accent)"></span><span id="wire-count">0 connections</span></span>
-      </div>
-      <span class="hint">Drag to reposition · click badge to recolor</span>
+  <div class="canvas" id="canvas">
+    <div class="canvas-inner" id="canvas-inner">
+      <svg id="wires"></svg>
     </div>
   </div>
 </div>
 
+<script src="state.js"></script>
 <script>
 (function () {
   var NODE_W = 176, NODE_H = 116, GAP_X = 90;
   var canvas = document.getElementById("canvas");
   var inner = document.getElementById("canvas-inner");
   var svg = document.getElementById("wires");
-  var stepsWrap = document.getElementById("steps");
-  var readout = document.getElementById("readout");
-  var nodeCountEl = document.getElementById("node-count");
-  var wireCountEl = document.getElementById("wire-count");
+  var titleEl = document.getElementById("title");
 
-  var nodes = [];
-  var wires = [];
-  var counter = 0;
-  var activeId = null;
+  var state = WorkflowState.load();
+  var nodeEls = {};
+  var suppress = false;
 
-  var seed = [
-    { title: "Schedule 7am", badge: "7am", colorClass: "c0", detail: "Runs automatically every morning at 7am — no manual kickoff needed.", script: "This runs itself every morning at 7am — no one has to remember to kick it off." },
-    { title: "Scrape leads", badge: "&darr;", colorClass: "c1", detail: "Pulls fresh leads from the source, zero manual list-building.", script: "It pulls fresh leads automatically — this used to be manual list-building, now it's zero-touch." },
-    { title: "Clean & dedupe", badge: "&perp;", colorClass: "c1", detail: "Strips duplicates and bad data before anything gets sent.", script: "Before anything gets sent, it cleans and dedupes the list, so nobody gets emailed twice." },
-    { title: "Enroll in campaign", badge: "@", colorClass: "c2", detail: "Every lead is auto-enrolled into a live email sequence.", script: "Then every lead gets automatically enrolled in a live email campaign — that's the follow-up that used to eat hours every week." },
-    { title: "Auto follow-up", badge: "&orarr;", colorClass: "c2", detail: "Keeps following up on its own until someone responds.", script: "And it keeps following up on its own until someone replies — nothing falls through the cracks." }
-  ];
+  titleEl.textContent = state.title;
 
-  function makeId() { counter += 1; return "n" + counter; }
+  function persist() { if (!suppress) WorkflowState.save(state); }
 
-  function addNode(cfg, opts) {
-    opts = opts || {};
-    var id = makeId();
-    var lastX = nodes.length ? nodes[nodes.length - 1].x : 0;
-    var x = nodes.length ? lastX + NODE_W + GAP_X : 24;
-    var y = 170;
+  function render() {
+    inner.innerHTML = "";
+    nodeEls = {};
+    state.nodes.forEach(function (n) { renderNode(n); });
+    layout();
+  }
 
+  function renderNode(n) {
     var el = document.createElement("div");
-    el.className = "node " + (cfg.colorClass || "c3");
-    el.dataset.id = id;
-    el.style.left = "0px";
-    el.style.top = "0px";
-    el.style.transform = "translate(" + x + "px," + y + "px)";
+    el.className = "node " + n.colorClass;
+    el.dataset.id = n.id;
+    el.style.transform = "translate(" + n.x + "px," + n.y + "px)";
     el.innerHTML =
       '<span class="del" title="Remove node" role="button" tabindex="0">&times;</span>' +
       '<div class="port l"></div>' +
-      '<div class="badge" title="Click to recolor">' + (cfg.badge || "?") + "</div>" +
-      '<p class="title" contenteditable="true">' + (cfg.title || "New step") + "</p>" +
+      '<div class="badge" title="Click to recolor">' + n.badge + "</div>" +
+      '<p class="title" contenteditable="true">' + n.title + "</p>" +
       '<div class="port r"></div>';
     inner.appendChild(el);
-
-    var node = { id: id, x: x, y: y, el: el, detail: cfg.detail || "Describe what this step does.", colorIndex: ["c0","c1","c2","c3"].indexOf(cfg.colorClass || "c3") };
-    nodes.push(node);
-
-    if (nodes.length > 1 && !opts.noWire) {
-      wires.push({ from: nodes[nodes.length - 2].id, to: id });
-    }
-
-    bindNodeEvents(node);
-    addStepLine(node, cfg.script || "");
-    layout();
-    return node;
+    nodeEls[n.id] = el;
+    bindNodeEvents(n, el);
   }
 
-  function addStepLine(node, text) {
-    var line = document.createElement("div");
-    line.className = "line step";
-    line.dataset.node = node.id;
-    var n = stepsWrap.querySelectorAll(".line.step").length + 1;
-    line.innerHTML =
-      '<span class="step-del" title="Remove line" role="button" tabindex="0">&times;</span>' +
-      '<span class="tag" contenteditable="true">STEP ' + n + "</span>" +
-      '<p contenteditable="true">' + (text || "Click here and describe this step&hellip;") + "</p>";
-    stepsWrap.appendChild(line);
-
-    line.querySelector(".step-del").addEventListener("click", function (e) {
-      e.stopPropagation();
-      line.remove();
-      wires = wires.filter(function (w) { return w.from !== node.id && w.to !== node.id; });
-      nodes = nodes.filter(function (n2) { return n2.id !== node.id; });
-      node.el.remove();
-      layout();
-    });
-
-    line.addEventListener("click", function (e) {
-      if (e.target.closest("[contenteditable]") || e.target.closest(".step-del")) return;
-      select(node.id);
-    });
+  function findNode(id) {
+    for (var i = 0; i < state.nodes.length; i++) if (state.nodes[i].id === id) return state.nodes[i];
+    return null;
   }
 
-  function removeNode(node) {
-    node.el.remove();
-    var stepLine = stepsWrap.querySelector('.line.step[data-node="' + node.id + '"]');
-    if (stepLine) stepLine.remove();
-    wires = wires.filter(function (w) { return w.from !== node.id && w.to !== node.id; });
-    nodes = nodes.filter(function (n2) { return n2.id !== node.id; });
-    layout();
-  }
-
-  function bindNodeEvents(node) {
-    var el = node.el;
+  function bindNodeEvents(n, el) {
     var badge = el.querySelector(".badge");
     var title = el.querySelector(".title");
     var del = el.querySelector(".del");
+    var palette = ["c0", "c1", "c2", "c3"];
 
     badge.addEventListener("click", function (e) {
       e.stopPropagation();
-      node.colorIndex = (node.colorIndex + 1) % 4;
-      el.className = "node " + ["c0", "c1", "c2", "c3"][node.colorIndex] + (el.classList.contains("active") ? " active" : "");
+      var idx = (palette.indexOf(n.colorClass) + 1) % 4;
+      n.colorClass = palette[idx];
+      el.className = "node " + n.colorClass;
+      persist();
+    });
+
+    title.addEventListener("input", function () {
+      n.title = title.textContent;
+      persist();
     });
 
     del.addEventListener("click", function (e) {
       e.stopPropagation();
-      removeNode(node);
+      state.nodes = state.nodes.filter(function (n2) { return n2.id !== n.id; });
+      state.wires = state.wires.filter(function (w) { return w.from !== n.id && w.to !== n.id; });
+      state.steps = state.steps.filter(function (s) { return s.nodeId !== n.id; });
+      persist();
+      render();
     });
     del.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); removeNode(node); }
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); del.click(); }
     });
 
     var dragging = false, moved = false, startPX = 0, startPY = 0, startX = 0, startY = 0;
@@ -419,50 +115,36 @@
       if (e.target.closest("[contenteditable]") || e.target.closest(".badge") || e.target.closest(".del")) return;
       dragging = true; moved = false;
       startPX = e.clientX; startPY = e.clientY;
-      startX = node.x; startY = node.y;
+      startX = n.x; startY = n.y;
       el.setPointerCapture(e.pointerId);
     });
-
     el.addEventListener("pointermove", function (e) {
       if (!dragging) return;
       var dx = e.clientX - startPX, dy = e.clientY - startPY;
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-      node.x = Math.max(0, startX + dx);
-      node.y = Math.max(0, startY + dy);
-      el.style.transform = "translate(" + node.x + "px," + node.y + "px)";
+      n.x = Math.max(0, startX + dx);
+      n.y = Math.max(0, startY + dy);
+      el.style.transform = "translate(" + n.x + "px," + n.y + "px)";
       drawWires();
       growCanvas();
     });
-
     el.addEventListener("pointerup", function (e) {
       if (!dragging) return;
       dragging = false;
       el.releasePointerCapture(e.pointerId);
-      if (!moved) select(node.id);
+      if (moved) persist();
+      else {
+        var wasActive = el.classList.contains("active");
+        document.querySelectorAll(".node").forEach(function (x) { x.classList.remove("active"); });
+        if (!wasActive) el.classList.add("active");
+      }
     });
-  }
-
-  function select(id) {
-    activeId = activeId === id ? null : id;
-    nodes.forEach(function (n) { n.el.classList.toggle("active", n.id === activeId); });
-    document.querySelectorAll(".line.step").forEach(function (l) {
-      l.classList.toggle("active", l.dataset.node === activeId);
-    });
-    if (activeId) {
-      var n = nodes.filter(function (n2) { return n2.id === activeId; })[0];
-      readout.innerHTML = "<b>" + n.el.querySelector(".title").textContent + ":</b> " + n.detail;
-      var line = document.querySelector('.line.step[data-node="' + activeId + '"]');
-      if (line) line.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    } else {
-      readout.textContent = "Click a node to see it highlighted here and jump to its script line.";
-    }
   }
 
   function drawWires() {
     svg.innerHTML = "";
-    wires.forEach(function (w) {
-      var from = nodes.filter(function (n) { return n.id === w.from; })[0];
-      var to = nodes.filter(function (n) { return n.id === w.to; })[0];
+    state.wires.forEach(function (w) {
+      var from = findNode(w.from), to = findNode(w.to);
       if (!from || !to) return;
       var sx = from.x + NODE_W, sy = from.y + NODE_H / 2;
       var ex = to.x, ey = to.y + NODE_H / 2;
@@ -476,7 +158,7 @@
 
   function growCanvas() {
     var maxX = 24, maxY = 330;
-    nodes.forEach(function (n) {
+    state.nodes.forEach(function (n) {
       maxX = Math.max(maxX, n.x + NODE_W + 40);
       maxY = Math.max(maxY, n.y + NODE_H + 40);
     });
@@ -486,42 +168,40 @@
     svg.setAttribute("height", inner.style.height);
   }
 
-  function updateStats() {
-    nodeCountEl.textContent = nodes.length + (nodes.length === 1 ? " node" : " nodes");
-    wireCountEl.textContent = wires.length + (wires.length === 1 ? " connection" : " connections");
-  }
+  function layout() { drawWires(); growCanvas(); }
 
-  function layout() {
-    drawWires();
-    growCanvas();
-    updateStats();
-  }
-
-  document.getElementById("add-node-btn").addEventListener("click", function () {
-    var palette = ["c0", "c1", "c2", "c3"];
-    addNode({ colorClass: palette[nodes.length % palette.length], badge: "+", title: "New step" });
+  titleEl.addEventListener("input", function () {
+    state.title = titleEl.textContent;
+    persist();
   });
 
-  seed.forEach(function (cfg) { addNode(cfg); });
+  document.getElementById("add-node-btn").addEventListener("click", function () {
+    state.counter += 1;
+    var id = "n" + state.counter;
+    var last = state.nodes[state.nodes.length - 1];
+    var x = last ? last.x + NODE_W + GAP_X : 24;
+    var y = last ? last.y : 170;
+    var palette = ["c0", "c1", "c2", "c3"];
+    var n = { id: id, title: "New step", badge: "+", colorClass: palette[state.nodes.length % 4], x: x, y: y, detail: "Describe what this step does." };
+    state.nodes.push(n);
+    if (last) state.wires.push({ from: last.id, to: id });
+    state.steps.push({ nodeId: id, text: "" });
+    persist();
+    render();
+  });
+
   window.addEventListener("resize", growCanvas);
 
-  var tabCanvas = document.getElementById("tab-btn-canvas");
-  var tabScript = document.getElementById("tab-btn-script");
-  var panelCanvas = document.getElementById("panel-canvas");
-  var panelScript = document.getElementById("panel-script");
+  WorkflowState.onChange(function (fresh) {
+    suppress = true;
+    state = fresh;
+    titleEl.textContent = state.title;
+    render();
+    suppress = false;
+  });
 
-  function showTab(name) {
-    var onCanvas = name === "canvas";
-    tabCanvas.classList.toggle("on", onCanvas);
-    tabCanvas.setAttribute("aria-selected", onCanvas);
-    tabScript.classList.toggle("on", !onCanvas);
-    tabScript.setAttribute("aria-selected", !onCanvas);
-    panelCanvas.classList.toggle("active", onCanvas);
-    panelScript.classList.toggle("active", !onCanvas);
-    if (onCanvas) growCanvas();
-  }
-
-  tabCanvas.addEventListener("click", function () { showTab("canvas"); });
-  tabScript.addEventListener("click", function () { showTab("script"); });
+  render();
 })();
 </script>
+</body>
+</html>

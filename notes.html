@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Notes — Dominic B.</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2213%22 font-size=%2214%22>&#128221;</text></svg>" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">D</div>
+      <div>
+        <p class="brand-name">Dominic B.</p>
+        <p class="brand-role">Prep notes — not for screen-share</p>
+      </div>
+    </div>
+    <span class="status-pill"><span class="dot" aria-hidden="true"></span><span id="node-total">0 nodes</span></span>
+  </div>
+
+  <h1 id="title">Automated lead outreach system</h1>
+  <p class="sub">This page is yours only. Open the canvas in a separate window on another monitor (or share only that window in Loom) and read from here. Editing the workflow itself — adding, dragging, renaming, or recoloring nodes — happens on the canvas page; edits there show up here automatically.</p>
+
+  <div class="section-head">
+    <p class="section-label">Nodes in order</p>
+  </div>
+  <div class="reflist" id="reflist"></div>
+
+  <div class="section-head">
+    <p class="section-label">Read top to bottom while presenting</p>
+  </div>
+  <div class="script-card">
+    <div class="script" id="script"></div>
+  </div>
+
+  <div class="stats">
+    <div class="items">
+      <span class="item"><span class="swatch" style="background:var(--data)"></span><span id="node-count">0 nodes</span></span>
+      <span class="item"><span class="swatch" style="background:var(--accent)"></span><span id="wire-count">0 connections</span></span>
+    </div>
+    <span class="hint">Text below syncs back automatically</span>
+  </div>
+</div>
+
+<script src="state.js"></script>
+<script>
+(function () {
+  var titleEl = document.getElementById("title");
+  var reflist = document.getElementById("reflist");
+  var scriptEl = document.getElementById("script");
+  var nodeCountEl = document.getElementById("node-count");
+  var wireCountEl = document.getElementById("wire-count");
+  var nodeTotalEl = document.getElementById("node-total");
+
+  var state = WorkflowState.load();
+  var suppress = false;
+
+  function persist() { if (!suppress) WorkflowState.save(state); }
+
+  function findNode(id) {
+    for (var i = 0; i < state.nodes.length; i++) if (state.nodes[i].id === id) return state.nodes[i];
+    return null;
+  }
+
+  function renderReflist() {
+    reflist.innerHTML = "";
+    state.nodes.forEach(function (n, i) {
+      var chip = document.createElement("span");
+      chip.className = "chip " + n.colorClass;
+      chip.innerHTML = '<span class="n">' + (i + 1) + '</span><span>' + n.title + "</span>";
+      reflist.appendChild(chip);
+    });
+  }
+
+  function renderScript() {
+    scriptEl.innerHTML = "";
+    scriptEl.appendChild(makeLine("OPEN", "open", state.open, function (val) { state.open = val; persist(); }));
+
+    state.steps.forEach(function (step, i) {
+      var node = findNode(step.nodeId);
+      var label = node ? "STEP " + (i + 1) + " · " + node.title : "STEP " + (i + 1);
+      scriptEl.appendChild(makeLine(label, "step", step.text, function (val) { step.text = val; persist(); }, "Describe this step…"));
+    });
+
+    var tieLine = document.createElement("div");
+    tieLine.className = "line tie";
+    var tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = "TIE-IN";
+    var p = document.createElement("p");
+    p.innerHTML = '"I saw you mentioned <input type="text" id="tie-in" placeholder="paste a line from their job post here" /> — this is the same kind of problem, just pointed at your workflow."';
+    tieLine.appendChild(tag);
+    tieLine.appendChild(p);
+    scriptEl.appendChild(tieLine);
+    var tieInput = tieLine.querySelector("#tie-in");
+    tieInput.value = state.tieIn || "";
+    tieInput.addEventListener("input", function () { state.tieIn = tieInput.value; persist(); });
+
+    scriptEl.appendChild(makeLine("CLOSE", "", state.close, function (val) { state.close = val; persist(); }));
+  }
+
+  function makeLine(tag, extraClass, text, onInput, placeholder) {
+    var line = document.createElement("div");
+    line.className = "line" + (extraClass ? " " + extraClass : "");
+    var tagEl = document.createElement("span");
+    tagEl.className = "tag";
+    tagEl.textContent = tag;
+    var p = document.createElement("p");
+    p.contentEditable = "true";
+    p.textContent = text || "";
+    if (!text && placeholder) { p.textContent = placeholder; p.style.color = "var(--text-muted)"; }
+    p.addEventListener("focus", function () {
+      if (p.textContent === placeholder) { p.textContent = ""; p.style.color = ""; }
+    });
+    p.addEventListener("input", function () { onInput(p.textContent); });
+    line.appendChild(tagEl);
+    line.appendChild(p);
+    return line;
+  }
+
+  function updateStats() {
+    var count = state.nodes.length + (state.nodes.length === 1 ? " node" : " nodes");
+    nodeCountEl.textContent = count;
+    nodeTotalEl.textContent = count;
+    wireCountEl.textContent = state.wires.length + (state.wires.length === 1 ? " connection" : " connections");
+  }
+
+  function renderAll() {
+    titleEl.textContent = state.title;
+    renderReflist();
+    renderScript();
+    updateStats();
+  }
+
+  WorkflowState.onChange(function (fresh) {
+    suppress = true;
+    state = fresh;
+    renderAll();
+    suppress = false;
+  });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
