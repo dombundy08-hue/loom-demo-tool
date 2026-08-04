@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jeneesa's Malamalama walkthrough — Dominic B.</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2213%22 font-size=%2214%22>&#9881;&#65039;</text></svg>" />
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">D</div>
+      <div>
+        <p class="brand-name">Dominic B.</p>
+        <p class="brand-role">AI automation &amp; lead-gen specialist</p>
+      </div>
+    </div>
+    <span class="status-pill"><span class="dot" aria-hidden="true"></span>Live walkthrough</span>
+  </div>
+
+  <h1 id="title" contenteditable="true">Website + GoHighLevel build — Jeneesa's Malamalama</h1>
+
+  <div class="section-head">
+    <p class="section-label">Workflow canvas</p>
+    <button class="ghost" id="add-node-btn" type="button"><span aria-hidden="true">+</span> Add node</button>
+  </div>
+  <div class="canvas" id="canvas">
+    <div class="canvas-inner" id="canvas-inner">
+      <svg id="wires"></svg>
+    </div>
+  </div>
+
+  <div class="pagefoot"><a href="notes.html" target="_blank" rel="noopener">Open notes ↗</a></div>
+</div>
+
+<script src="state.js"></script>
+<script>
+(function () {
+  var NODE_W = 176, NODE_H = 116, GAP_X = 90;
+  var canvas = document.getElementById("canvas");
+  var inner = document.getElementById("canvas-inner");
+  var svg = document.getElementById("wires");
+  var titleEl = document.getElementById("title");
+
+  var state = WorkflowState.load();
+  var nodeEls = {};
+  var suppress = false;
+
+  titleEl.textContent = state.title;
+
+  function persist() { if (!suppress) WorkflowState.save(state); }
+
+  function render() {
+    inner.querySelectorAll(".node").forEach(function (el) { el.remove(); });
+    nodeEls = {};
+    state.nodes.forEach(function (n) { renderNode(n); });
+    layout();
+  }
+
+  function renderNode(n) {
+    var el = document.createElement("div");
+    el.className = "node " + n.colorClass;
+    el.dataset.id = n.id;
+    el.style.transform = "translate(" + n.x + "px," + n.y + "px)";
+    el.innerHTML =
+      '<div class="node-body">' +
+      '<span class="del" title="Remove node" role="button" tabindex="0">&times;</span>' +
+      '<div class="port l"></div>' +
+      '<div class="badge" title="Click to recolor">' + n.badge + "</div>" +
+      '<p class="title" contenteditable="true">' + n.title + "</p>" +
+      '<div class="port r"></div>' +
+      "</div>";
+    inner.appendChild(el);
+    nodeEls[n.id] = el;
+    bindNodeEvents(n, el);
+  }
+
+  function findNode(id) {
+    for (var i = 0; i < state.nodes.length; i++) if (state.nodes[i].id === id) return state.nodes[i];
+    return null;
+  }
+
+  function bindNodeEvents(n, el) {
+    var badge = el.querySelector(".badge");
+    var title = el.querySelector(".title");
+    var del = el.querySelector(".del");
+    var palette = ["c0", "c1", "c2", "c3"];
+
+    badge.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var idx = (palette.indexOf(n.colorClass) + 1) % 4;
+      n.colorClass = palette[idx];
+      el.className = "node " + n.colorClass;
+      persist();
+    });
+
+    title.addEventListener("input", function () {
+      n.title = title.textContent;
+      persist();
+    });
+
+    del.addEventListener("click", function (e) {
+      e.stopPropagation();
+      state.nodes = state.nodes.filter(function (n2) { return n2.id !== n.id; });
+      state.wires = state.wires.filter(function (w) { return w.from !== n.id && w.to !== n.id; });
+      state.steps = state.steps.filter(function (s) { return s.nodeId !== n.id; });
+      persist();
+      render();
+    });
+    del.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); del.click(); }
+    });
+
+    var dragging = false, moved = false, startPX = 0, startPY = 0, startX = 0, startY = 0;
+
+    el.addEventListener("pointerdown", function (e) {
+      if (e.target.closest("[contenteditable]") || e.target.closest(".badge") || e.target.closest(".del")) return;
+      dragging = true; moved = false;
+      startPX = e.clientX; startPY = e.clientY;
+      startX = n.x; startY = n.y;
+      el.classList.add("dragging");
+      el.setPointerCapture(e.pointerId);
+    });
+    el.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - startPX, dy = e.clientY - startPY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+      n.x = Math.max(0, startX + dx);
+      n.y = Math.max(0, startY + dy);
+      el.style.transform = "translate(" + n.x + "px," + n.y + "px)";
+      drawWires();
+      growCanvas();
+    });
+    el.addEventListener("pointerup", function (e) {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove("dragging");
+      el.releasePointerCapture(e.pointerId);
+      if (moved) persist();
+      else {
+        var wasActive = el.classList.contains("active");
+        document.querySelectorAll(".node").forEach(function (x) { x.classList.remove("active"); });
+        if (!wasActive) el.classList.add("active");
+      }
+    });
+  }
+
+  function drawWires() {
+    svg.innerHTML = "";
+    state.wires.forEach(function (w) {
+      var from = findNode(w.from), to = findNode(w.to);
+      if (!from || !to) return;
+      var sx = from.x + NODE_W, sy = from.y + NODE_H / 2;
+      var ex = to.x, ey = to.y + NODE_H / 2;
+      var c1 = sx + (ex - sx) * 0.5, c2 = ex - (ex - sx) * 0.5;
+      var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", "M" + sx + "," + sy + " C" + c1 + "," + sy + " " + c2 + "," + ey + " " + ex + "," + ey);
+      path.setAttribute("class", "wire-path");
+      svg.appendChild(path);
+    });
+  }
+
+  function growCanvas() {
+    var maxX = 24, maxY = 330;
+    state.nodes.forEach(function (n) {
+      maxX = Math.max(maxX, n.x + NODE_W + 40);
+      maxY = Math.max(maxY, n.y + NODE_H + 40);
+    });
+    inner.style.width = Math.max(maxX, canvas.clientWidth) + "px";
+    inner.style.height = Math.max(maxY, canvas.clientHeight) + "px";
+    svg.setAttribute("width", inner.style.width);
+    svg.setAttribute("height", inner.style.height);
+  }
+
+  function layout() { drawWires(); growCanvas(); }
+
+  titleEl.addEventListener("input", function () {
+    state.title = titleEl.textContent;
+    persist();
+  });
+
+  document.getElementById("add-node-btn").addEventListener("click", function () {
+    state.counter += 1;
+    var id = "n" + state.counter;
+    var last = state.nodes[state.nodes.length - 1];
+    var x = last ? last.x + NODE_W + GAP_X : 24;
+    var y = last ? last.y : 170;
+    var palette = ["c0", "c1", "c2", "c3"];
+    var n = { id: id, title: "New step", badge: "+", colorClass: palette[state.nodes.length % 4], x: x, y: y, detail: "Describe what this step does." };
+    state.nodes.push(n);
+    if (last) state.wires.push({ from: last.id, to: id });
+    state.steps.push({ nodeId: id, text: "" });
+    persist();
+    render();
+  });
+
+  window.addEventListener("resize", growCanvas);
+
+  WorkflowState.onChange(function (fresh) {
+    suppress = true;
+    state = fresh;
+    titleEl.textContent = state.title;
+    render();
+    suppress = false;
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
