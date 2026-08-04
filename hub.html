@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Projects — Dominic B.</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2213%22 font-size=%2214%22>&#128193;</text></svg>" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">D</div>
+      <div>
+        <p class="brand-name">Dominic B.</p>
+        <p class="brand-role">AI automation &amp; lead-gen specialist</p>
+      </div>
+    </div>
+  </div>
+
+  <h1>Projects</h1>
+  <p class="sub">Every workflow demo built so far. Each one is a Canvas (the diagram to screen-share) and Notes (the private script) — open Canvas to record, Notes to prep.</p>
+
+  <div class="hub-grid" id="hub-grid"></div>
+
+  <div class="pagefoot"><span>Add a new one with Claude — say what to build it for</span></div>
+</div>
+
+<script>
+var projects = [
+  { title: "Automated lead outreach system", canvas: "index.html", notes: "notes.html" },
+  { title: "Website build — from call to launch", canvas: "website/index.html", notes: "website/notes.html" },
+  { title: "Automatic GHL calendar & booking", canvas: "ghl-calendar/index.html", notes: "ghl-calendar/notes.html" },
+  { title: "Website + GoHighLevel build — Jeneesa's Malamalama", canvas: "malamalama/index.html", notes: "malamalama/notes.html" }
+];
+
+var grid = document.getElementById("hub-grid");
+projects.forEach(function (p) {
+  var card = document.createElement("div");
+  card.className = "hub-card";
+  card.innerHTML =
+    '<p class="hub-title"></p>' +
+    '<div class="hub-links">' +
+    '<a target="_blank" rel="noopener">Canvas ↗</a>' +
+    '<a target="_blank" rel="noopener">Notes ↗</a>' +
+    "</div>";
+  card.querySelector(".hub-title").textContent = p.title;
+  var links = card.querySelectorAll(".hub-links a");
+  links[0].href = p.canvas;
+  links[1].href = p.notes;
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

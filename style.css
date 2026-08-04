@@ -177,3 +177,21 @@ button.ghost:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
   color: var(--text-muted); text-decoration: none;
 }
 .pagefoot a:hover { color: var(--accent); }
+
+a.mark { text-decoration: none; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; }
+a.mark:hover { background: var(--accent); color: var(--panel); transform: scale(1.06); }
+a.mark:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 0 0 2rem; }
+.hub-card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.hub-card .hub-title { font-size: 17px; font-weight: 500; margin: 0; line-height: 1.4; }
+.hub-card .hub-links { display: flex; gap: 10px; margin-top: auto; }
+.hub-card .hub-links a {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--text-secondary); text-decoration: none; background: var(--panel-2);
+  border: 1px solid var(--border-strong); border-radius: 8px; padding: 8px 14px; flex: 1; text-align: center;
+}
+.hub-card .hub-links a:hover { color: var(--text-primary); border-color: var(--accent); }
